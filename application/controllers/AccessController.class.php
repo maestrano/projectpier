@@ -59,6 +59,14 @@
         $this->redirectTo('dashboard');
       } // if
       
+      // Hook:Maestrano
+      // Redirect to SSO login
+      $maestrano = MaestranoService::getInstance();
+      if ($maestrano->isSsoEnabled()) {
+        header("Location: " . $maestrano->getSsoInitUrl());
+        exit;
+      }
+      
       $login_data = array_var($_POST, 'login');
       if (!is_array($login_data)) {
         $login_data = array();
@@ -148,6 +156,15 @@
     */
     function logout() {
       CompanyWebsite::instance()->logUserOut();
+      
+      // Hook:Maestrano
+      // Redirect to logout page
+      $maestrano = MaestranoService::getInstance();
+      if ($maestrano->isSsoEnabled()) {
+        header("Location: " . $maestrano->getSsoLogoutUrl());
+        exit;
+      }
+      
       if(($lrp = config_option('logout_redirect_page')) != false && $lrp != 'default') {
         $this->redirectToUrl($lrp);
       } else {

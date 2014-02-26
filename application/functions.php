@@ -238,7 +238,16 @@
       }
       trace(__FILE__, 'prepare_company_website_controller(): not logged in, redirect');
       $controller->redirectTo('access', 'login', $ref_params);
-    } // if
+    } else {
+      // Hook:Maestrano
+      // Check Maestrano session is still valid
+      $maestrano = MaestranoService::getInstance();
+      if ($maestrano->isSsoEnabled()) {
+        if (!$maestrano->getSsoSession()->isValid()) {
+          header("Location: " . $maestrano->getSsoInitUrl());
+        }
+      }
+    }
     
     $controller->setLayout($layout);
     $controller->addHelper('breadcrumbs');
