@@ -1255,7 +1255,7 @@
         // into an underscore followed by lowercase of the capital
         $column = substr(strtolower(preg_replace('([A-Z])', '_$0', $method)), 4);
         if (!$this->columnExists($column)) {
-          throw new Exception('Call to undefined method DataObject::'.$name.'()');
+          throw new Exception('Call to undefined method DataObject::'.$method.'()');
         }
         if(substr($method, 0, 3) == "get") {
           return $this->getColumnValue($column);
@@ -1265,7 +1265,7 @@
         }
       }
       // me no understand!
-      throw new Exception('Call to undefined method DataObject::'.$name.'()');
+      throw new Exception('Call to undefined method DataObject::'.$method.'()');
       return false;
     }
     
