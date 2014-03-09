@@ -73,7 +73,7 @@ class MnoSsoUser extends MnoSsoBaseUser
       
       // Then create the local contact associated
       // to the user
-      if ($lid & $lid > 0) {
+      if ($lid && $lid > 0) {
         $contact = $this->buildLocalContact($lid);
         $contact->save();
       }
