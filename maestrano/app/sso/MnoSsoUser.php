@@ -69,6 +69,7 @@ class MnoSsoUser extends MnoSsoBaseUser
       // First create the user and get the id
       $user = $this->buildLocalUser();
       $user->save();
+      $user->setPermission(PermissionManager::CAN_MANAGE_PROJECTS, 1);
       $lid = $user->getId();
       
       // Then create the local contact associated
@@ -97,7 +98,7 @@ class MnoSsoUser extends MnoSsoBaseUser
     ));
     $user->setPassword($this->generatePassword());
     $user->setIsAdmin($this->isUserAdmin());
-    $user->setAutoAssign(0);
+    $user->setAutoAssign(1);
     
     return $user;
   }
