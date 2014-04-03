@@ -665,7 +665,12 @@
     */
     function getDisplayName() {
       $display = parent::getDisplayName();
-      return trim($display) == '' ? $this->getUsername() : $display;
+      $contact = $this->getContact();
+      if (!is_null($contact)) {
+        $display = $contact->getDisplayName();
+      }
+      $display =  trim($display) == '' ? $this->getUsername() : $display;
+      return $display;
     } // getDisplayName
     
     // ---------------------------------------------------
