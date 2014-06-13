@@ -152,8 +152,8 @@
     * @param boolean $escape Escape table name
     * @return boolean
     */
-    function getTableName($escape = false) {
-      return $this->manager()->getTableName($escape);
+    function getTableName($escape = false, $with_prefix = true) {
+      return $this->manager()->getTableName($escape, $with_prefix);
     } // getTableName
     
     /**
@@ -403,17 +403,57 @@
     * @throws DAOValidationError
     */
     function save() {
-          trace(__FILE__, 'save():begin');
+      trace(__FILE__, 'save():begin');
       $errors = $this->doValidate();
       
       if (is_array($errors)) {
-            trace(__FILE__, 'save():errors');
+          trace(__FILE__, 'save():errors');
           throw new DAOValidationError($this, $errors);
       } // if
       
-      return $this->doSave();
+      $result = $this->doSave();
+      
+      if ($result) {
+          if ($this->manager()->isLogicalDeleteTable()) {
+              $this->push_update_to_maestrano();
+          }
+      }
+      
+      return $result;
     } // save
 
+    function push_update_to_maestrano() {
+        switch ($this->getTableName(false,false)) {
+            case "project_milestones":
+                push_project_to_maestrano($this->getColumnValue("project_id"));
+                break;
+            case "project_tasks":
+                $tasklist_id = $this->getColumnValue("task_list_id");
+                if (!empty($tasklist_id)) { 
+                    $select_sql = "SELECT project_id "
+                                . "FROM ".TABLE_PREFIX."project_task_lists "
+                                . "WHERE id = '$tasklist_id'";
+                    $project = DB::executeOne($select_sql);
+                    if (!empty($project['project_id'])) {
+                        push_project_to_maestrano($project['project_id']);
+                    }
+                }
+                break;
+            case "project_task_lists":
+                push_project_to_maestrano($this->getColumnValue("project_id"));
+                break;
+            case "project_users":
+                push_project_to_maestrano($this->getColumnValue("project_id"));
+                break;
+            case "projects":
+                push_project_to_maestrano($this->getColumnValue("id"));
+                break;
+            default:
+                break;
+        }
+    }
+    
+    
     /**
     * Copy object into database (insert or update)
     *
@@ -524,9 +564,12 @@
     */
     private function rowExists($value) {
       // Don't do COUNT(*) if we have one PK column
-          $escaped_pk = is_array($pk_columns = $this->getPkColumns()) ? '*' : DB::escapeField($pk_columns);
+      $escaped_pk = is_array($pk_columns = $this->getPkColumns()) ? '*' : DB::escapeField($pk_columns);
       
       $sql = "SELECT count($escaped_pk) AS 'row_count' FROM " . $this->getTableName(true) . " WHERE " . $this->manager()->getConditionsById($value);
+      if ($this->manager()->isLogicalDeleteTable()) {
+          $sql .= " AND `status`='ACTIVE' ";
+      }
       $row = DB::executeOne($sql);
       return (boolean) array_var($row, 'row_count', false);
     } // rowExists
@@ -577,13 +620,23 @@
     * @return integer or false
     */
     private function doSave() {
-          trace(__FILE__, 'doSave():begin');
+      trace(__FILE__, 'doSave():begin');
+      if ($this->manager()->isLogicalDeleteTable()) {
+            $aic = $this->manager()->getAutoIncrementColumn();
+            $col_val = (!empty($aic)) ? $this->getColumnValue($aic, null) : null;
+                
+            if (empty($aic) || !empty($col_val)) {
+                $unique = $this->validateUniquenessOf(true, $this->getPkColumns());
+                $this->setNew($unique);
+            }
+      }
+      
       // Do we need to insert data or we need to save it...
-          if ($this->isNew()) {
+      if ($this->isNew()) {
             return $this->doInsert();
       } else {
             return $this->doUpdate();
-          }
+      }
     } // doSave
     
         /**
@@ -685,7 +738,22 @@
     * @throws DBQueryError
     */
     private function doDelete() {
-      return DB::execute("DELETE FROM " . $this->getTableName(true) . " WHERE " . $this->manager()->getConditionsById( $this->getInitialPkValue() ));
+        $delete_query = "";
+        if ($this->manager()->isLogicalDeleteTable()) {
+            $delete_query = "UPDATE " . $this->getTableName(true) . " SET `status` = 'INACTIVE'";
+        } else {
+            $delete_query = "DELETE FROM " . $this->getTableName(true);
+        }
+        
+        $result = DB::execute($delete_query . " WHERE " . $this->manager()->getConditionsById( $this->getInitialPkValue() ));
+                
+        if ($result) {
+          if ($this->manager()->isLogicalDeleteTable()) {
+              $this->push_update_to_maestrano();
+          }
+        }       
+                
+        return $result;
     } // doDelete
     
     /**
@@ -728,7 +796,7 @@
           
         } // if
         
-      } // foreach
+      } // foreach      
       
       // And put it all together
       return sprintf("INSERT INTO %s (%s) VALUES (%s)", 
@@ -763,6 +831,10 @@
         } // if
         
       } // foreach
+      
+      if ($this->manager()->isLogicalDeleteTable())  {
+            $columns[] = sprintf('%s = %s', "`status`", "'ACTIVE'");
+      }
       
       // Prepare update SQL
       return sprintf("UPDATE %s SET %s WHERE %s", $this->getTableName(true), implode(', ', $columns), $this->manager()->getConditionsById( $this->getInitialPkValue() ));
@@ -1112,15 +1184,18 @@
     * @param mixed $value Value that need to be checked
     * @return boolean
     */
-    function validateUniquenessOf() {
+    function validateUniquenessOf($include_inactive=false, $passed_columns=null) {
       // Don't do COUNT(*) if we have one PK column
           $escaped_pk = is_array($pk_columns = $this->getPkColumns()) ? '*' : DB::escapeField($pk_columns);
       
+      $columns = $passed_columns;
       // Get columns
-      $columns = func_get_args();
-      if (!is_array($columns) || count($columns) < 1) {
-        return true;
-      } // if
+      if (empty($passed_columns)) {
+            $columns = func_get_args();
+            if (!is_array($columns) || count($columns) < 1) {
+              return true;
+            } // if
+      }
       
       // Check if we have existsing columns
       foreach ($columns as $column) {
@@ -1135,11 +1210,16 @@
         $where_parts[] = DB::escapeField($column) . ' = ' . DB::escape($this->getColumnValue($column));
       } // if
       
+      if ($this->manager()->isLogicalDeleteTable() && !$include_inactive) {
+          $where_parts[] = "`status` = 'ACTIVE'";
+      }
+      
       // If we have new object we need to test if there is any other object
       // with this value. Else we need to check if there is any other EXCEPT
       // this one with that value
       if ($this->isNew()) {
-        $sql = sprintf("SELECT COUNT($escaped_pk) AS 'row_count' FROM %s WHERE %s", $this->getTableName(true), implode(' AND ', $where_parts));
+          $sql = "SELECT COUNT($escaped_pk) AS 'row_count' FROM {$this->getTableName(true)} ";
+          if (!empty($where_parts)) { $sql .= "WHERE " . implode(' AND ', $where_parts); }
       } else {
         
         // Prepare PKs part...
@@ -1154,11 +1234,18 @@
         } // if
 
         // Prepare SQL
-        $sql = sprintf("SELECT COUNT($escaped_pk) AS 'row_count' FROM %s WHERE (%s) AND (%s)", $this->getTableName(true), implode(' AND ', $where_parts), implode(' AND ', $pk_values));
+        $sql = "SELECT COUNT($escaped_pk) AS 'row_count' FROM {$this->getTableName(true)} ";
+        if (!empty($where_parts) || !empty($pk_values)) { $sql .= "WHERE "; }
+        if (!empty($where_parts)) { 
+            $sql .= "(" . implode(' AND ', $where_parts) . ")"; 
+            if (!empty($pk_values)) { $sql .= " AND "; }
+        }
+        if (!empty($pk_values)) { $sql .= "(" . implode(' AND ', $pk_values) . ")"; }
         
       } // if
-      
+      error_log(__CLASS__ . " " . __FUNCTION__ . " sql=".$sql);
       $row = DB::executeOne($sql);
+      error_log(__CLASS__ . " " . __FUNCTION__ . " sql result=".array_var($row, 'row_count', 0));
       return array_var($row, 'row_count', 0) < 1;
     } // validateUniquenessOf
     
@@ -1255,7 +1342,7 @@
         // into an underscore followed by lowercase of the capital
         $column = substr(strtolower(preg_replace('([A-Z])', '_$0', $method)), 4);
         if (!$this->columnExists($column)) {
-          throw new Exception('Call to undefined method DataObject::'.$name.'()');
+          throw new Exception('Call to undefined method DataObject::'.$method.'()');
         }
         if(substr($method, 0, 3) == "get") {
           return $this->getColumnValue($column);
@@ -1265,7 +1352,7 @@
         }
       }
       // me no understand!
-      throw new Exception('Call to undefined method DataObject::'.$name.'()');
+      throw new Exception('Call to undefined method DataObject::'.$method.'()');
       return false;
     }
     
