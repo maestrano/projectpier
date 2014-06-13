@@ -27,6 +27,7 @@
       if (trim($additional_conditions) <> '') {
         $sql .= " AND ($additional_conditions)";
       }
+      $sql .= " AND `status` = 'ACTIVE'";
       $sql .= " ORDER BY ($contacts_table.`display_name`)";
       
       $rows = DB::executeAll($sql);
@@ -75,9 +76,11 @@
         $sql = "SELECT distinct $projects_table.* FROM $projects_table";
         $sql .= " left outer join $project_milestones_table on $project_milestones_table.`project_id` = $projects_table.`id`";
         $sql .= " inner join $project_users_table on $projects_table.`id` = $project_users_table.`project_id`";
-        $sql .= " where $project_users_table.`user_id` = " . DB::escape($user->getId()) . " and ($project_milestones_table.`completed_on` = $empty_datetime or isnull($project_milestones_table.`completed_on`))";
+        $sql .= " where $project_users_table.`user_id` = " . DB::escape($user->getId()) . " and ($project_milestones_table.`completed_on` = $empty_datetime or isnull($project_milestones_table.`completed_on`)) "
+                . "and $projects_table.`status`='ACTIVE' and $project_milestones_table.`status`='ACTIVE' and $project_users_table.`status`='ACTIVE' ";
       } else {
-        $sql = "SELECT $projects_table.* FROM $projects_table, $project_users_table WHERE ($projects_table.`id` = $project_users_table.`project_id` AND $project_users_table.`user_id` = " . DB::escape($user->getId()) . ')';
+        $sql = "SELECT $projects_table.* FROM $projects_table, $project_users_table WHERE ($projects_table.`id` = $project_users_table.`project_id` AND $project_users_table.`user_id` = " . DB::escape($user->getId()) . ')'
+                . "and $projects_table.`status`='ACTIVE' and $project_users_table.`status`='ACTIVE' ";
       }
 
       if(trim($additional_conditions) <> '') {

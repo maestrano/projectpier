@@ -173,6 +173,11 @@
       
       // Prepare query parts
       $where_string = trim($conditions) == '' ? '' : "WHERE $conditions";
+
+      if ($this->isLogicalDeleteTable()) {
+          $where_string = trim($conditions) == '' ? "WHERE status='ACTIVE' " : "WHERE $conditions AND status='ACTIVE' ";
+      }
+      
       $order_by_string = trim($order_by) == '' ? '' : "ORDER BY $order_by";
       $limit_string = $limit > 0 ? "LIMIT $offset, $limit" : '';
       
@@ -266,6 +271,9 @@
       
       $conditions = $this->prepareConditions($conditions);
       $where_string = trim($conditions) == '' ? '' : "WHERE $conditions";
+      if ($this->isLogicalDeleteTable()) {
+          $where_string .= " AND `status`='ACTIVE' ";
+      }
       $row = DB::executeOne("SELECT COUNT($escaped_pk) AS 'row_count' FROM " . $this->getTableName(true) . " $where_string");
       return (integer) array_var($row, 'row_count', 0);
     } // count
@@ -281,11 +289,67 @@
       trace(__FILE__,"delete($conditions)");
       $conditions = $this->prepareConditions($conditions);
       $where_string = trim($conditions) == '' ? '' : "WHERE $conditions";
-      $sql = "DELETE FROM " . $this->getTableName(true) . " $where_string";
+      $sql = "";
+      if ($this->isLogicalDeleteTable()) {
+          $sql = "UPDATE " . $this->getTableName(true) . " SET `status` = 'INACTIVE' $where_string";
+      } else {
+          $sql = "DELETE FROM " . $this->getTableName(true) . " $where_string";
+      }     
       trace(__FILE__,"delete($conditions) sql=".$sql);
-      return DB::execute($sql);
+      
+      $result = DB::execute($sql);
+      if ($result) {
+          if ($this->isLogicalDeleteTable()) {
+            switch ($this->getTableName(false,false)) {
+                case "project_milestones":
+                    $select_sql = "SELECT DISTINCT project_id FROM " . $this->getTableName(true) . " $where_string AND `status` = 'INACTIVE' ";
+                    $this->pushAffectedProjects($select_sql, "project_id");
+                    break;
+                case "project_tasks":
+                    $select_sql = "SELECT DISTINCT project_id "
+                                . "FROM ".TABLE_PREFIX."project_task_lists "
+                                . "WHERE id IN ("
+                                        . "SELECT DISTINCT task_list_id "
+                                        . "FROM ". $this->getTableName(true) . " "
+                                        . "$where_string AND `status` = 'INACTIVE') ";
+                    $this->pushAffectedProjects($select_sql, "project_id");
+                    break;
+                case "project_task_lists":
+                    $select_sql = "SELECT DISTINCT project_id FROM " . $this->getTableName(true) . " $where_string AND `status` = 'INACTIVE' ";
+                    $this->pushAffectedProjects($select_sql, "project_id");
+                    break;
+                case "project_users":
+                    $select_sql = "SELECT DISTINCT project_id FROM " . $this->getTableName(true) . " $where_string AND `status` = 'INACTIVE' ";
+                    $this->pushAffectedProjects($select_sql, "project_id");
+                    break;
+                case "projects":
+                    $select_sql = "SELECT DISTINCT id FROM " . $this->getTableName(true) . " $where_string AND `status` = 'INACTIVE' ";
+                    $this->pushAffectedProjects($select_sql, "id");
+                    break;
+                default:
+                    break;
+            }
+          }
+      }
+      return $result;
     } // delete
+
+    function pushAffectedProjects($sql, $id_column_name) {
+        $projects = DB::executeAll($sql);
+                    
+        foreach ($projects as $project) {
+            if (!empty($project[$id_column_name])) {
+                error_log(__CLASS__. " " . __FUNCTION__ . " push pushAffectedProjects project_id=" . $project[$id_column_name] . " id_column_name $id_column_name");
+                push_project_to_maestrano($project[$id_column_name]);
+            }
+        }
+    }
     
+    function isLogicalDeleteTable() {
+        $logical_delete_tables = array("project_milestones", "project_tasks", "project_task_lists", "project_users", "projects");
+        
+        return in_array(strtolower($this->getTableName(false,false)), $logical_delete_tables);
+    }
     /**
     * This function will return paginated result. Result is array where first element is 
     * array of returned object and second populated pagination object that can be used for 
@@ -387,11 +451,15 @@
     * @return array
     */
     function loadRow($id) {
-      trace(__FILE__,"loadRow($id)");   
+      trace(__FILE__,"loadRow($id)");
+      $status_check = "";
+      if ($this->isLogicalDeleteTable()) {
+          $status_check = " AND `status`='ACTIVE' ";
+      }
       $sql = sprintf("SELECT %s FROM %s WHERE %s", 
         implode(', ', $this->getLoadColumns(true)), 
         $this->getTableName(true), 
-        $this->getConditionsById($id)
+        $this->getConditionsById($id) . $status_check
       ); // sprintf
       trace(__FILE__,"loadRow($id) sql=$sql");   
       
@@ -486,6 +554,10 @@
     */
     function getCachedItem($id) {
     
+      if ($this->isLogicalDeleteTable()) {
+          return null;
+      }
+        
       // Multicolumn PK
       if (is_array($id)) {
         
@@ -527,6 +599,10 @@
     */
     function cacheItem($item) {
       
+      if ($this->isLogicalDeleteTable()) {
+          return false;
+      }
+        
       // Check item instance...
       if (!instance_of($item, 'DataObject') || !$item->isLoaded()) {
         return false;
