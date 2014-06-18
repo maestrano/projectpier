@@ -432,9 +432,12 @@
     */
     function delete() {
       $task_list = $this->getTaskList();
+      // MNO FIX - PREVENT TASK FROM BEING DETACHED FROM TASKLIST
+      /*
       if ($task_list instanceof ProjectTaskList) {
         $task_list->detachTask($this);
       }
+       */
       return parent::delete();
     } // delete
     

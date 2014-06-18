@@ -463,7 +463,7 @@
           $this->contact = $contact;
         } else {
           $this->contact = new Contact;
-          $this->contact->setName(lang('missing contact'));
+          $this->contact->setDisplayName(lang('missing contact'));
         }
       }
       return $this->contact;
@@ -665,7 +665,12 @@
     */
     function getDisplayName() {
       $display = parent::getDisplayName();
-      return trim($display) == '' ? $this->getUsername() : $display;
+      $contact = $this->getContact();
+      if (!is_null($contact)) {
+        $display = $contact->getDisplayName();
+      }
+      $display =  trim($display) == '' ? $this->getUsername() : $display;
+      return $display;
     } // getDisplayName
     
     // ---------------------------------------------------

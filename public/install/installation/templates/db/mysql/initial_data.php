@@ -163,10 +163,23 @@ INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `p
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 6);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 7);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 8);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 0, 9);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 10);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 11);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 12);
 INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 13);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 14);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 15);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 16);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 17);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 18);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 19);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 20);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 21);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 22);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 23);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 24);
+INSERT INTO `<?php echo $table_prefix ?>project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 25);
 
 INSERT INTO `<?php echo $table_prefix ?>plugins` (`plugin_id`, `name`, `installed`) VALUES (1, 'files', 0);
 INSERT INTO `<?php echo $table_prefix ?>plugins` (`plugin_id`, `name`, `installed`) VALUES (2, 'form', 0);

@@ -177,6 +177,20 @@
   // data collected by the matched route
   require APPLICATION_PATH . '/application.php';
 
+  // Hook:Maestrano
+  // Load Maestrano
+  require_once ROOT . '/maestrano/app/init/base.php';
+  $maestrano = MaestranoService::getInstance();
+  // Require authentication straight away if intranet
+  // mode enabled
+  if ($maestrano->isSsoIntranetEnabled()) {
+    if(!isset($_SESSION)) session_start();
+    if (!$maestrano->getSsoSession()->isValid()) {
+      header("Location: " . $maestrano->getSsoInitUrl());
+      exit;
+    }
+  }
+
   // Set handle request timer...
   if (Env::isDebugging()) {
     benchmark_timer_set_marker('Handle request');
