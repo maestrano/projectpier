@@ -7,10 +7,7 @@ if (!defined('MAESTRANO_ROOT')) {
   define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../'));
 }
 
-error_log("before soa.php");
-
 require_once(MAESTRANO_ROOT . '/app/init/soa.php');
-error_log("after soa.php");
 
 $maestrano = MaestranoService::getInstance();
 

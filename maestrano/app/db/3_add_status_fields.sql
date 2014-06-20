@@ -189,3 +189,18 @@ CREATE TRIGGER `export_milestone_assignees_update` AFTER UPDATE ON `pp088_projec
 END
 //
 DELIMITER ;
+
+
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 0, 9);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 14);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 15);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 16);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 17);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 18);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 19);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 20);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 21);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 22);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 23);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 24);
+INSERT INTO `pp088_project_user_permissions` (`user_id`, `project_id`, `permission_id`) VALUES (1, 1, 25);
