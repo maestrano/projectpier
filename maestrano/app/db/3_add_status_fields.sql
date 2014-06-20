@@ -6,7 +6,7 @@ ALTER TABLE  `pp088_projects` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'AC
 ALTER TABLE  `pp088_project_users` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'ACTIVE';
 ALTER TABLE  `pp088_project_milestones` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'ACTIVE';
 ALTER TABLE  `pp088_project_task_lists` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'ACTIVE';
-ALTER TABLE  `pp088_project_tasks` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'ACTIVE'
+ALTER TABLE  `pp088_project_tasks` ADD  `status` VARCHAR( 255 ) NOT NULL DEFAULT  'ACTIVE';
 
 --
 -- ADD mno_status FIELDS
