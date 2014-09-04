@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title><?php echo get_page_title() ?> | <?php echo $site_name ?></title>
-<?php echo stylesheet_tag('company_website.css') ?> 
-<?php echo stylesheet_tag('colorbox/colorbox.css') ?> 
-<?php echo meta_tag('content-type', 'text/html; charset=utf-8', true) ?> 
+<?php echo stylesheet_tag('company_website.css') ?>
+<?php echo stylesheet_tag('colorbox/colorbox.css') ?>
+<?php echo meta_tag('content-type', 'text/html; charset=utf-8', true) ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 <?php echo link_tag(ROOT_URL.'favicon.ico', 'rel', 'Shortcut Icon', array("type"=>"image/x-icon")) ?>
 <?php echo link_tag(logged_user()->getRecentActivitiesFeedUrl(), 'rel', 'alternate', array("type"=>"application/rss+xml", "title"=>lang('recent activities feed'))) ?>
@@ -21,7 +21,7 @@
 <?php include('inlinejs.php') ?>
 <?php echo render_system_notices(logged_user()) ?>
     <div id="wrapper">
-    
+
       <!-- header -->
       <div id="headerWrapper">
         <div id="header">
@@ -41,7 +41,7 @@
 <?php } // if ?>
         </div>
       </div>
-      
+
       <div id="crumbsWrapper">
         <div id="crumbsBlock">
           <div id="crumbs">
@@ -98,7 +98,7 @@
             <div class="clear"></div>
           </div>
         </div>
-        
+
         <!--footer -->
         <div id="footer">
           <div id="copy">
@@ -114,5 +114,9 @@
       </div>
       <!-- /content wrapper -->
     </div>
+    <script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      window.mnoLoader.init("projectpier","1");
+    </script>
   </body>
 </html>

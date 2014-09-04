@@ -8,12 +8,12 @@
 <?php } else { ?>
     <title><?php echo get_page_title() ?> | <?php echo clean(owner_company()->getName()) ?></title>
 <?php } // if ?>
-    
-<?php echo stylesheet_tag('project_website.css') ?> 
-<?php echo stylesheet_tag('jquery/jquery-ui-1.8.6.custom.css') ?> 
-<?php echo stylesheet_tag('colorbox/colorbox.css') ?> 
+
+<?php echo stylesheet_tag('project_website.css') ?>
+<?php echo stylesheet_tag('jquery/jquery-ui-1.8.6.custom.css') ?>
+<?php echo stylesheet_tag('colorbox/colorbox.css') ?>
 <?php echo meta_tag('content-type', 'text/html; charset=utf-8', true) ?>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 <?php echo link_tag(ROOT_URL.'favicon.ico', 'rel', 'Shortcut Icon', array("type"=>"image/x-icon")) ?>
 <?php echo link_tag(logged_user()->getRecentActivitiesFeedUrl(), 'rel', 'alternate', array("type"=>"application/rss+xml", "title"=>lang('recent activities feed'))) ?>
 <?php add_javascript_to_page('pp.js') ?>
@@ -30,7 +30,7 @@
 <?php include dirname(__FILE__) . '/memo.php'?>
 <?php trace(__FILE__,'body begin') ?>
 <?php echo render_system_notices(logged_user()) ?>
-    <div id="wrapper">   
+    <div id="wrapper">
       <!-- header -->
       <div id="headerWrapper">
         <div id="header">
@@ -89,7 +89,7 @@
 <?php } ?>
         </div>
       </div>
-      
+
 <?php trace(__FILE__,'body contentWrapper') ?>
       <!-- content wrapper -->
       <div id="outerContentWrapper">
@@ -114,7 +114,7 @@
             <div class="clear"></div>
           </div>
         </div>
-        
+
         <!--Footer -->
         <div id="footer">
           <div id="copy">
@@ -128,8 +128,12 @@
         </div>
       </div>
       <!-- /content wrapper -->
-      
+
     </div>
+    <script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      window.mnoLoader.init("projectpier","1");
+    </script>
 <?php trace(__FILE__,'body end') ?>
   </body>
 </html>

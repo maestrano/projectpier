@@ -4,9 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title><?php echo get_page_title() ?> | <?php echo clean(owner_company()->getName()) ?></title>
-<?php echo stylesheet_tag('project_website.css') ?> 
+<?php echo stylesheet_tag('project_website.css') ?>
 <?php echo stylesheet_tag('colorbox/colorbox.css') ?>
-<?php echo meta_tag('content-type', 'text/html; charset=utf-8', true) ?> 
+<?php echo meta_tag('content-type', 'text/html; charset=utf-8', true) ?>
 <?php echo link_tag(ROOT_URL.'favicon.ico', 'rel', 'Shortcut Icon', array("type"=>"image/x-icon")) ?>
 <?php add_javascript_to_page('pp.js') ?>
 <?php add_javascript_to_page('jquery.min.js') ?>
@@ -20,7 +20,7 @@
 <?php include('inlinejs.php'); ?>
 <?php echo render_system_notices(logged_user()) ?>
     <div id="wrapper">
-    
+
       <!-- header -->
       <div id="headerWrapper">
         <div id="header">
@@ -30,7 +30,7 @@
         </div>
       </div>
       <!-- /header -->
-      
+
       <div id="tabsWrapper">
         <div id="tabs">
 <?php if (is_array(tabbed_navigation_items())) { ?>
@@ -42,7 +42,7 @@
 <?php } // if ?>
         </div>
       </div>
-      
+
       <div id="crumbsWrapper">
         <div id="crumbsBlock">
           <div id="crumbs">
@@ -60,7 +60,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- content wrapper -->
       <div id="outerContentWrapper">
 <?php if (is_array(page_actions())) { ?>
@@ -99,7 +99,7 @@
             <div class="clear"></div>
           </div>
         </div>
-        
+
         <!--Footer -->
         <div id="footer">
           <div id="copy">
@@ -113,7 +113,11 @@
         </div>
       </div>
       <!-- /content wrapper -->
-      
+      <script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
+      <script type="text/javascript">
+        window.mnoLoader.init("projectpier","1");
+      </script>
+
     </div>
   </body>
 </html>
